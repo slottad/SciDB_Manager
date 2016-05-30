@@ -26,6 +26,8 @@
 package scidb_manager;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,8 +43,17 @@ public class SciDB_Manager {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
         try
         {
+            String homeDir = System.getProperty("user.home");
+            System.out.println(homeDir);
+            URI uri = new URI("scidb","slottad:password","gtdev13", 1239,null,null,null);
+            System.out.println(uri);
+            URI uri2 = new URI("scidb",null,"gtdev13", 1239,null,null,null);
+            System.out.println(uri2);
+            System.exit(0);
+            
             try
             {
                 Class.forName("org.scidb.jdbc.Driver");
@@ -56,7 +67,7 @@ public class SciDB_Manager {
             qm.test();
             qm.namespaces();
         }
-        catch (SQLException | SciDBException | IOException ex)
+        catch (SQLException | SciDBException | IOException | URISyntaxException ex)
         {
             Logger.getLogger(SciDB_Manager.class.getName()).log(Level.SEVERE, null, ex);
         }

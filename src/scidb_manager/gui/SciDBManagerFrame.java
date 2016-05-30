@@ -23,7 +23,7 @@
  * 
  * ===========================================================================
  */
-package scidb_manager;
+package scidb_manager.gui;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -35,40 +35,15 @@ import javax.swing.tree.DefaultTreeModel;
 import org.scidb.client.SciDBException;
 import org.scidb.jdbc.Connection;
 import org.scidb.jdbc.IStatementWrapper;
+import scidb_manager.ResultTableModel;
+import scidb_manager.SciDBArrayTreeCreator;
 
 /**
  *
  * @author slottad
  */
-//class ArraysTableModel extends AbstractTableModel {
-//    private String[] columnNames = {"One", "Two", "Three"};
-//    private Object[][] data = {
-//        {"Snowboarding", new Integer(5), new Boolean(false)},
-//        {"Waterskiing", new Integer(42), new Boolean(true)},
-//        {"Programming", new Integer(59), new Boolean(false)},
-//    };
-//    public int getColumnCount() {
-//        return columnNames.length;
-//    }
-//
-//    public int getRowCount() {
-//        return data.length;
-//    }
-//
-//    public String getColumnName(int col) {
-//        return columnNames[col];
-//    }
-//
-//    public Object getValueAt(int row, int col) {
-//        return data[row][col];
-//    }
-//
-//    public Class getColumnClass(int c) {
-//        return getValueAt(0, c).getClass();
-//    }
-//}
 
-public class ManagerJFrame extends javax.swing.JFrame {
+public class SciDBManagerFrame extends javax.swing.JFrame {
 
     private ResultTableModel arrayResults;
 
@@ -78,7 +53,7 @@ public class ManagerJFrame extends javax.swing.JFrame {
      * @throws java.io.IOException
      * @throws org.scidb.client.SciDBException
      */
-    public ManagerJFrame() throws SQLException, IOException, SciDBException {
+    public SciDBManagerFrame() throws SQLException, IOException, SciDBException {
         String iqueryHost = "scidb-vm";
         String iqueryPort = "1239";
         Connection conn = new Connection(iqueryHost, Integer.parseInt(iqueryPort));
@@ -121,6 +96,8 @@ public class ManagerJFrame extends javax.swing.JFrame {
         ArrayProperties = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jSplitPane1.setDividerLocation(150);
 
         jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
@@ -188,14 +165,15 @@ public class ManagerJFrame extends javax.swing.JFrame {
 //                }
 //            }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ManagerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SciDBManagerFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ManagerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SciDBManagerFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ManagerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SciDBManagerFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ManagerJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(SciDBManagerFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
@@ -203,9 +181,9 @@ public class ManagerJFrame extends javax.swing.JFrame {
             @Override
             public void run() {
                 try {
-                    new ManagerJFrame().setVisible(true);
+                    new SciDBManagerFrame().setVisible(true);
                 } catch (SQLException | IOException | SciDBException ex) {
-                    Logger.getLogger(ManagerJFrame.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(SciDBManagerFrame.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
