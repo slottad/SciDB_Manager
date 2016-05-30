@@ -79,7 +79,7 @@ public class ManagerJFrame extends javax.swing.JFrame {
      * @throws org.scidb.client.SciDBException
      */
     public ManagerJFrame() throws SQLException, IOException, SciDBException {
-        String iqueryHost = "localhost";
+        String iqueryHost = "scidb-vm";
         String iqueryPort = "1239";
         Connection conn = new Connection(iqueryHost, Integer.parseInt(iqueryPort));
         conn.getSciDBConnection().startNewClient("slottad", "bigsecret");
