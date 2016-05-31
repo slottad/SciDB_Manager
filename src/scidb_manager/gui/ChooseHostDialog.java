@@ -26,21 +26,36 @@
 package scidb_manager.gui;
 
 import java.util.Properties;
+import javax.swing.DefaultListModel;
 
 /**
  *
  * @author slottad
  */
 public class ChooseHostDialog extends javax.swing.JDialog {
-
+    private DefaultListModel _clusters;
+    
     /**
      * Creates new form ChooseHostDialog
      */
     public ChooseHostDialog(java.awt.Frame parent, boolean modal, Properties props) {
         super(parent, modal);
+        _clusters = new DefaultListModel();
+        _clusters.addElement("a");
+        _clusters.addElement("x");
+        _clusters.addElement("c");
+        
         initComponents();
     }
 
+    public String getHost() {
+        return hostField.getText();
+    }
+
+    public Integer getPort() {
+        return Integer.parseInt(portField.getText());
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -51,7 +66,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
+        clusterJList = new javax.swing.JList<>();
         hostField = new javax.swing.JTextField();
         HostLabel = new javax.swing.JLabel();
         portField = new javax.swing.JTextField();
@@ -66,12 +81,8 @@ public class ChooseHostDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(jList1);
+        clusterJList.setModel(_clusters);
+        jScrollPane1.setViewportView(clusterJList);
 
         hostField.setText("localhost");
 
@@ -166,7 +177,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
-        // TODO add your handling code here:
+        setVisible(false);
     }//GEN-LAST:event_openButtonActionPerformed
 
     /**
@@ -213,9 +224,9 @@ public class ChooseHostDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel HostLabel;
+    private javax.swing.JList<String> clusterJList;
     private javax.swing.JButton deleteButton;
     private javax.swing.JTextField hostField;
-    private javax.swing.JList<String> jList1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton newButton;
     private javax.swing.JButton openButton;

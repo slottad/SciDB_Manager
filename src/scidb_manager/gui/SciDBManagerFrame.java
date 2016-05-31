@@ -28,6 +28,7 @@ package scidb_manager.gui;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
@@ -64,9 +65,12 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         ChooseHostDialog hostDialog = new ChooseHostDialog(this, true, _properties);
         hostDialog.setVisible(true);
 
-        String iqueryHost = "scidb-vm";
-        String iqueryPort = "1239";
-        Connection conn = new Connection(iqueryHost, Integer.parseInt(iqueryPort));
+        String iqueryHost = hostDialog.getHost();
+        Integer iqueryPort = hostDialog.getPort();
+        //String iqueryHost = "localhost";
+        //String iqueryHost = "scidb-vm";
+        //Integer iqueryPort = 1239;
+        Connection conn = new Connection(iqueryHost, iqueryPort);
         conn.getSciDBConnection().startNewClient("slottad", "bigsecret");
 
         ArrayTreeModel = SciDBArrayTreeCreator.create(iqueryHost, conn);
@@ -86,13 +90,14 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
 
     private void load_properties() throws IOException {
         Properties defaultProps = new Properties();
-        //InputStream in = this.getClass().getResourceAsStream("/default.properties");
-        //defaultProps.load(in);
-        Path user = Paths.get(System.getProperty("user.home"),".scidb_manager");
+        InputStream in = this.getClass().getResourceAsStream("/settings/defaults.properties");
+        defaultProps.load(in);
         _properties = new Properties(defaultProps);
-        //try (InputStream in = new FileInputStream(user.toString())) {
-        //    _properties.load(in);
-        //}
+        Path user = Paths.get(System.getProperty("user.home"),".scidb_manager");
+        if (Files.isRegularFile(user) & Files.isReadable(user)) {
+            in = new FileInputStream(user.toString());
+            _properties.load(in);
+        }
     }
     
     /**
