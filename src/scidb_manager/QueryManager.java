@@ -26,19 +26,30 @@ import org.scidb.jdbc.IStatementWrapper;
 public final class QueryManager {
     private static QueryManager instance = null;
 
+    public static synchronized void initialize(String host, Integer port, String user, String pass)
+            throws SQLException, SciDBException, IOException {
+        if (instance != null) {
+            Logger.getLogger(SciDB_Manager.class.getName()).log(Level.SEVERE, "QueryManager initialized more than once.");
+        }
+        instance = new QueryManager(host, port, user, pass);
+    }
+    
+    
     public static synchronized QueryManager getInstance() throws SQLException, SciDBException, IOException {
         if (instance == null) {
-            instance = new QueryManager("localhost", "1239", "slottad", "bigsecret");
+            Logger.getLogger(SciDB_Manager.class.getName()).log(Level.SEVERE, "QueryManager used before initialization.");
         }
         return instance;
     }
     
-    private QueryManager(String host, String port,
-                        String user, String pass) throws SQLException, SciDBException, IOException {
+    private QueryManager(String host, Integer port, String user, String pass)
+            throws SQLException, SciDBException, IOException {
         _host = host;
+        _port = port;
         _user = user;
-        _conn = new Connection(_host, Integer.parseInt(port));
-        _conn.getSciDBConnection().startNewClient(_user, pass);
+        _pass = pass;
+        _conn = new Connection(_host, _port);
+        _conn.getSciDBConnection().startNewClient(_user, _pass);
         _st = _conn.createStatement();
         IStatementWrapper stWrap = _st.unwrap(IStatementWrapper.class);
         stWrap.setAfl(true);
@@ -95,8 +106,11 @@ public final class QueryManager {
         }
     }
     
-    private final String _host;
-    private final String _user;
+    private final String  _host;
+    private final Integer _port;
+    private final String  _user;
+    private final String  _pass;
+
     private final Connection _conn;
     private final Statement _st;
     
@@ -112,5 +126,19 @@ public final class QueryManager {
      */
     public String getUser() {
         return _user;
+    }
+
+    /**
+     * @return the _port
+     */
+    public Integer getPort() {
+        return _port;
+    }
+
+    /**
+     * @return the _pass
+     */
+    public String getPass() {
+        return _pass;
     }
 }

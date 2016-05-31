@@ -25,8 +25,16 @@
  */
 package scidb_manager.gui;
 
+import java.awt.event.ItemEvent;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Enumeration;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import org.scidb.client.SciDBException;
+import scidb_manager.QueryManager;
 
 /**
  *
@@ -40,10 +48,18 @@ public class ChooseHostDialog extends javax.swing.JDialog {
      */
     public ChooseHostDialog(java.awt.Frame parent, boolean modal, Properties props) {
         super(parent, modal);
+        
         _clusters = new DefaultListModel();
-        _clusters.addElement("a");
-        _clusters.addElement("x");
-        _clusters.addElement("c");
+        Enumeration e = props.keys();
+        while (e.hasMoreElements()) {
+            String key = e.nextElement().toString();
+            if (key.startsWith("uri")) {
+                _clusters.addElement(props.getProperty(key));
+            }
+        }
+//        _clusters.addElement("a");
+//        _clusters.addElement("x");
+//        _clusters.addElement("c");
         
         initComponents();
     }
@@ -56,6 +72,14 @@ public class ChooseHostDialog extends javax.swing.JDialog {
         return Integer.parseInt(portField.getText());
     }
     
+    public String getUser() {
+        return userField.getText();
+    }
+    
+    public String getPass() {
+        return new String(passField.getPassword());
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -71,10 +95,11 @@ public class ChooseHostDialog extends javax.swing.JDialog {
         HostLabel = new javax.swing.JLabel();
         portField = new javax.swing.JTextField();
         portLabel = new javax.swing.JLabel();
-        usernameField = new javax.swing.JTextField();
+        userField = new javax.swing.JTextField();
         usernameLabel = new javax.swing.JLabel();
-        passwordField = new javax.swing.JPasswordField();
+        passField = new javax.swing.JPasswordField();
         passwordLabel = new javax.swing.JLabel();
+        showPassCheckBox = new javax.swing.JCheckBox();
         openButton = new javax.swing.JButton();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
@@ -94,9 +119,14 @@ public class ChooseHostDialog extends javax.swing.JDialog {
 
         usernameLabel.setText("Username");
 
-        passwordField.setText("jPasswordField1");
-
         passwordLabel.setText("Password");
+
+        showPassCheckBox.setText("Show Passwords");
+        showPassCheckBox.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                showPassCheckBoxItemStateChanged(evt);
+            }
+        });
 
         openButton.setText("Open");
         openButton.addActionListener(new java.awt.event.ActionListener() {
@@ -132,9 +162,11 @@ public class ChooseHostDialog extends javax.swing.JDialog {
                                 .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(newButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(openButton, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(showPassCheckBox)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(passField, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
+                                    .addComponent(userField, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(passwordLabel)
@@ -146,6 +178,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -156,20 +189,21 @@ public class ChooseHostDialog extends javax.swing.JDialog {
                             .addComponent(portLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(userField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(usernameLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(passField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(passwordLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(showPassCheckBox)
                         .addGap(18, 18, 18)
                         .addComponent(openButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(newButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(deleteButton)
-                        .addGap(0, 172, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -177,8 +211,21 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
-        setVisible(false);
+        try {
+            QueryManager.initialize(getHost(), getPort(), getUser(), getPass());
+            setVisible(false);
+        } catch (SQLException | SciDBException | IOException ex) {
+            Logger.getLogger(ChooseHostDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_openButtonActionPerformed
+
+    private void showPassCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_showPassCheckBoxItemStateChanged
+        if (evt.getStateChange() == ItemEvent.SELECTED)  {
+            passField.setEchoChar((char) 0);
+        } else {
+            passField.setEchoChar('*');
+        }
+    }//GEN-LAST:event_showPassCheckBoxItemStateChanged
 
     /**
      * @param args the command line arguments
@@ -209,6 +256,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 ChooseHostDialog dialog = new ChooseHostDialog(new javax.swing.JFrame(), true, null);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -230,11 +278,12 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton newButton;
     private javax.swing.JButton openButton;
-    private javax.swing.JPasswordField passwordField;
+    private javax.swing.JPasswordField passField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.JTextField portField;
     private javax.swing.JLabel portLabel;
-    private javax.swing.JTextField usernameField;
+    private javax.swing.JCheckBox showPassCheckBox;
+    private javax.swing.JTextField userField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables
 }

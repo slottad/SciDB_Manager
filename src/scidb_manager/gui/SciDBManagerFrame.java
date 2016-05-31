@@ -64,6 +64,7 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         load_properties();
         ChooseHostDialog hostDialog = new ChooseHostDialog(this, true, _properties);
         hostDialog.setVisible(true);
+        hostDialog.dispose();
 
         String iqueryHost = hostDialog.getHost();
         Integer iqueryPort = hostDialog.getPort();
@@ -89,13 +90,13 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
     }
 
     private void load_properties() throws IOException {
-        Properties defaultProps = new Properties();
-        InputStream in = this.getClass().getResourceAsStream("/settings/defaults.properties");
-        defaultProps.load(in);
-        _properties = new Properties(defaultProps);
+        _properties = new Properties();
         Path user = Paths.get(System.getProperty("user.home"),".scidb_manager");
         if (Files.isRegularFile(user) & Files.isReadable(user)) {
-            in = new FileInputStream(user.toString());
+            InputStream in = new FileInputStream(user.toString());
+            _properties.load(in);
+        } else {
+            InputStream in = this.getClass().getResourceAsStream("/settings/defaults.properties");
             _properties.load(in);
         }
     }
