@@ -25,6 +25,8 @@
  */
 package scidb_manager.gui;
 
+import java.util.Properties;
+
 /**
  *
  * @author slottad
@@ -34,7 +36,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     /**
      * Creates new form ChooseHostDialog
      */
-    public ChooseHostDialog(java.awt.Frame parent, boolean modal) {
+    public ChooseHostDialog(java.awt.Frame parent, boolean modal, Properties props) {
         super(parent, modal);
         initComponents();
     }
@@ -197,7 +199,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ChooseHostDialog dialog = new ChooseHostDialog(new javax.swing.JFrame(), true);
+                ChooseHostDialog dialog = new ChooseHostDialog(new javax.swing.JFrame(), true, null);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

@@ -25,10 +25,14 @@
  */
 package scidb_manager;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.scidb.client.SciDBException;
@@ -47,11 +51,22 @@ public class SciDB_Manager {
         try
         {
             String homeDir = System.getProperty("user.home");
+            homeDir += "/.scidb_manager";
+            Path fname = Paths.get(System.getProperty("user.home"),".scidb_manager");
             System.out.println(homeDir);
+            System.out.println(fname.toString());
             URI uri = new URI("scidb","slottad:password","gtdev13", 1239,null,null,null);
             System.out.println(uri);
             URI uri2 = new URI("scidb",null,"gtdev13", 1239,null,null,null);
             System.out.println(uri2);
+            
+            Properties defaultProps = new Properties();
+            defaultProps.setProperty("uri1",uri.toString());
+            defaultProps.setProperty("uri2",uri2.toString());
+            
+//            try (FileOutputStream out = new FileOutputStream("default.properties")) {
+//                defaultProps.store(out, "---No Comment---");
+//            }
             System.exit(0);
             
             try

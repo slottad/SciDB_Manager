@@ -25,10 +25,15 @@
  */
 package scidb_manager.gui;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.tree.DefaultTreeModel;
@@ -45,8 +50,9 @@ import scidb_manager.SciDBArrayTreeCreator;
 
 public class SciDBManagerFrame extends javax.swing.JFrame {
 
-    private ResultTableModel arrayResults;
-
+    private final ResultTableModel _arrayResults;
+    private Properties _properties;
+    
     /**
      * Creates new form ManagerJFrame
      * @throws java.sql.SQLException
@@ -54,6 +60,10 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
      * @throws org.scidb.client.SciDBException
      */
     public SciDBManagerFrame() throws SQLException, IOException, SciDBException {
+        load_properties();
+        ChooseHostDialog hostDialog = new ChooseHostDialog(this, true, _properties);
+        hostDialog.setVisible(true);
+
         String iqueryHost = "scidb-vm";
         String iqueryPort = "1239";
         Connection conn = new Connection(iqueryHost, Integer.parseInt(iqueryPort));
@@ -69,11 +79,22 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
 //        ResultSet res = st.executeQuery("select * from array(<a:string>[x=0:2,3,0, y=0:2,3,0], '[[\"a\",\"b\",\"c\"][\"d\",\"e\",\"f\"][\"123\",\"456\",\"789\"]]')");
         ResultSet res = st.executeQuery("list('arrays')");
 
-        arrayResults = new ResultTableModel(res);
+        _arrayResults = new ResultTableModel(res);
         
         initComponents();
     }
 
+    private void load_properties() throws IOException {
+        Properties defaultProps = new Properties();
+        //InputStream in = this.getClass().getResourceAsStream("/default.properties");
+        //defaultProps.load(in);
+        Path user = Paths.get(System.getProperty("user.home"),".scidb_manager");
+        _properties = new Properties(defaultProps);
+        //try (InputStream in = new FileInputStream(user.toString())) {
+        //    _properties.load(in);
+        //}
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -107,7 +128,7 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
 
         jSplitPane2.setTopComponent(QueryEditorScrollPane);
 
-        ResultsTable.setModel(arrayResults);
+        ResultsTable.setModel(_arrayResults);
         ResultsTableScrollPane.setViewportView(ResultsTable);
 
         jSplitPane2.setRightComponent(ResultsTableScrollPane);
