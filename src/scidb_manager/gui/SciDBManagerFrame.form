@@ -149,7 +149,7 @@
                 <Component class="javax.swing.JTree" name="ArrayTree">
                   <Properties>
                     <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="ArrayTreeModel" type="code"/>
+                      <Connection code="_arrayTreeModel" type="code"/>
                     </Property>
                   </Properties>
                 </Component>

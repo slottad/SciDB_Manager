@@ -32,6 +32,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
 
 /**
  *
@@ -58,6 +59,14 @@ public class HostsManager {
             }
         }
         
+    }
+
+    public DefaultListModel getListModel() {
+        DefaultListModel lm = new DefaultListModel();
+        _hosts.stream().forEach((uri) -> {
+            lm.addElement(uri);
+        });
+        return lm;
     }
     
     private final Properties _properties;

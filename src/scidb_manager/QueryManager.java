@@ -26,12 +26,17 @@ import org.scidb.jdbc.IStatementWrapper;
 public final class QueryManager {
     private static QueryManager instance = null;
 
-    public static synchronized void initialize(String host, Integer port, String user, String pass)
-            throws SQLException, SciDBException, IOException {
+    public static synchronized boolean initialize(String host, Integer port, String user, String pass) {
         if (instance != null) {
             Logger.getLogger(SciDB_Manager.class.getName()).log(Level.SEVERE, "QueryManager initialized more than once.");
         }
-        instance = new QueryManager(host, port, user, pass);
+        try {
+            instance = new QueryManager(host, port, user, pass);
+        } catch (SQLException | SciDBException | IOException ex) {
+            Logger.getLogger(QueryManager.class.getName()).log(Level.SEVERE,null,"Unable to connect to host.");
+            return false;
+        }
+        return true;
     }
     
     
@@ -73,6 +78,11 @@ public final class QueryManager {
             res.next();
         }
         return arrays;
+    }
+    
+    public ResultTableModel run_afl_query(String afl) throws SQLException {
+        ResultSet res = _st.executeQuery(afl);
+        return new ResultTableModel(res);
     }
     
     public final void test() {

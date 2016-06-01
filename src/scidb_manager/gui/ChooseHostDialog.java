@@ -33,7 +33,9 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import org.scidb.client.SciDBException;
+import scidb_manager.HostsManager;
 import scidb_manager.QueryManager;
 
 /**
@@ -41,35 +43,35 @@ import scidb_manager.QueryManager;
  * @author slottad
  */
 public class ChooseHostDialog extends javax.swing.JDialog {
-    private DefaultListModel _clusters;
+    private final DefaultListModel _clusters;
+    private HostsManager _hostManager;
     
     /**
      * Creates new form ChooseHostDialog
+     * @param parent
+     * @param modal
+     * @param props
      */
     public ChooseHostDialog(java.awt.Frame parent, boolean modal, Properties props) {
         super(parent, modal);
-        
-        _clusters = new DefaultListModel();
-        Enumeration e = props.keys();
-        while (e.hasMoreElements()) {
-            String key = e.nextElement().toString();
-            if (key.startsWith("uri")) {
-                _clusters.addElement(props.getProperty(key));
-            }
-        }
-//        _clusters.addElement("a");
-//        _clusters.addElement("x");
-//        _clusters.addElement("c");
-        
+
+        _hostManager = new HostsManager(props);
+        _clusters = _hostManager.getListModel();
+
         initComponents();
     }
-
+    
     public String getHost() {
         return hostField.getText();
     }
 
     public Integer getPort() {
         return Integer.parseInt(portField.getText());
+    }
+    
+    public String getHostPort() {
+        String rv = new StringBuilder(hostField.getText()).append(":").append(portField.getText()).toString();
+        return rv;
     }
     
     public String getUser() {
@@ -211,11 +213,11 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
-        try {
-            QueryManager.initialize(getHost(), getPort(), getUser(), getPass());
+        boolean success = QueryManager.initialize(getHost(), getPort(), getUser(), getPass());
+        if (success) {
             setVisible(false);
-        } catch (SQLException | SciDBException | IOException ex) {
-            Logger.getLogger(ChooseHostDialog.class.getName()).log(Level.SEVERE, null, ex);
+        } else {
+            JOptionPane.showMessageDialog(this, "Unable to connect to " + getHostPort());
         }
     }//GEN-LAST:event_openButtonActionPerformed
 

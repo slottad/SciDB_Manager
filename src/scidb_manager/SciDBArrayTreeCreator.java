@@ -11,17 +11,16 @@ import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.scidb.client.SciDBException;
-import org.scidb.jdbc.Connection;
 
 /**
  *
  * @author slottad
  */
 public class SciDBArrayTreeCreator {
-    public static DefaultTreeModel create(String name, Connection con) throws SQLException, SciDBException, IOException
+    public static DefaultTreeModel create() throws SQLException, SciDBException, IOException
     {
-        DefaultMutableTreeNode top = new DefaultMutableTreeNode(name);
         QueryManager qm = QueryManager.getInstance();
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode(qm.getHost());
         List<String> namespaces = qm.namespaces();
         
         for (String ns : namespaces) {

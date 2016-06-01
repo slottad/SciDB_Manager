@@ -41,6 +41,7 @@ import javax.swing.tree.DefaultTreeModel;
 import org.scidb.client.SciDBException;
 import org.scidb.jdbc.Connection;
 import org.scidb.jdbc.IStatementWrapper;
+import scidb_manager.QueryManager;
 import scidb_manager.ResultTableModel;
 import scidb_manager.SciDBArrayTreeCreator;
 
@@ -51,6 +52,7 @@ import scidb_manager.SciDBArrayTreeCreator;
 
 public class SciDBManagerFrame extends javax.swing.JFrame {
 
+    private DefaultTreeModel _arrayTreeModel;
     private final ResultTableModel _arrayResults;
     private Properties _properties;
     
@@ -66,25 +68,27 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         hostDialog.setVisible(true);
         hostDialog.dispose();
 
-        String iqueryHost = hostDialog.getHost();
-        Integer iqueryPort = hostDialog.getPort();
+        //String iqueryHost = hostDialog.getHost();
+        //Integer iqueryPort = hostDialog.getPort();
         //String iqueryHost = "localhost";
         //String iqueryHost = "scidb-vm";
         //Integer iqueryPort = 1239;
-        Connection conn = new Connection(iqueryHost, iqueryPort);
-        conn.getSciDBConnection().startNewClient("slottad", "bigsecret");
+        //Connection conn = new Connection(iqueryHost, iqueryPort);
+        //conn.getSciDBConnection().startNewClient("slottad", "bigsecret");
 
-        ArrayTreeModel = SciDBArrayTreeCreator.create(iqueryHost, conn);
-        
-        Statement st = conn.createStatement();
-        IStatementWrapper stWrap = st.unwrap(IStatementWrapper.class);
-        stWrap.setAfl(true);
-        //create array A<a:string>[x=0:2,3,0, y=0:2,3,0];
-        //select * into A from array(A, '[["a","b","c"]["d","e","f"]["123","456","789"]]');
-//        ResultSet res = st.executeQuery("select * from array(<a:string>[x=0:2,3,0, y=0:2,3,0], '[[\"a\",\"b\",\"c\"][\"d\",\"e\",\"f\"][\"123\",\"456\",\"789\"]]')");
-        ResultSet res = st.executeQuery("list('arrays')");
+        _arrayTreeModel = SciDBArrayTreeCreator.create();
+//        
+//        Statement st = conn.createStatement();
+//        IStatementWrapper stWrap = st.unwrap(IStatementWrapper.class);
+//        stWrap.setAfl(true);
+//        //create array A<a:string>[x=0:2,3,0, y=0:2,3,0];
+//        //select * into A from array(A, '[["a","b","c"]["d","e","f"]["123","456","789"]]');
+////        ResultSet res = st.executeQuery("select * from array(<a:string>[x=0:2,3,0, y=0:2,3,0], '[[\"a\",\"b\",\"c\"][\"d\",\"e\",\"f\"][\"123\",\"456\",\"789\"]]')");
+//        ResultSet res = st.executeQuery("list('arrays')");
 
-        _arrayResults = new ResultTableModel(res);
+        QueryManager qm = QueryManager.getInstance();
+        _arrayResults = qm.run_afl_query("list('arrays')");
+        //_arrayResults = new ResultTableModel(res);
         
         initComponents();
     }
@@ -143,7 +147,7 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
 
         jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
-        ArrayTree.setModel(ArrayTreeModel);
+        ArrayTree.setModel(_arrayTreeModel);
         ArrayTreeScrollPane.setViewportView(ArrayTree);
 
         jSplitPane3.setTopComponent(ArrayTreeScrollPane);
@@ -217,7 +221,7 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
     }
 
 
-    private DefaultTreeModel ArrayTreeModel;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList<String> ArrayProperties;
     private javax.swing.JScrollPane ArrayPropertiesScrollPane;
