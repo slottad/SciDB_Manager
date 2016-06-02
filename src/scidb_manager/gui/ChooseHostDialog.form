@@ -39,20 +39,14 @@
                           <Component id="portLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
+                  <Component id="showPassCheckBox" min="-2" max="-2" attributes="0"/>
+                  <Component id="deleteButton" min="-2" pref="100" max="-2" attributes="0"/>
+                  <Component id="saveButton" alignment="0" min="-2" pref="100" max="-2" attributes="0"/>
+                  <Component id="openButton" alignment="0" min="-2" pref="100" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="deleteButton" min="-2" pref="100" max="-2" attributes="0"/>
-                              <Component id="newButton" alignment="0" min="-2" pref="100" max="-2" attributes="0"/>
-                              <Component id="openButton" alignment="0" min="-2" pref="100" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="103" alignment="1" groupAlignment="0" attributes="0">
-                              <Component id="showPassCheckBox" min="-2" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="passField" pref="125" max="32767" attributes="0"/>
-                                  <Component id="userField" pref="125" max="32767" attributes="0"/>
-                              </Group>
-                          </Group>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="passField" pref="125" max="32767" attributes="0"/>
+                          <Component id="userField" pref="125" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -61,7 +55,7 @@
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -96,7 +90,7 @@
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="openButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="newButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="saveButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -177,9 +171,9 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="newButton">
+    <Component class="javax.swing.JButton" name="saveButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="New"/>
+        <Property name="text" type="java.lang.String" value="Save"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="deleteButton">

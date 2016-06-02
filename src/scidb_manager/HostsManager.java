@@ -60,6 +60,18 @@ public class HostsManager {
         }
         
     }
+    
+    public void add_host(String host, String port, String user, String pass) {
+        String userinfo = null;
+        if (user != null) {
+            userinfo = user + ":" + pass;
+        }
+        try {
+            _hosts.add(new URI(userinfo, host, port));
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(HostsManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     public DefaultListModel getListModel() {
         DefaultListModel lm = new DefaultListModel();
