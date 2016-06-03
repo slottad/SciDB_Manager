@@ -68,27 +68,10 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         hostDialog.setVisible(true);
         hostDialog.dispose();
 
-        //String iqueryHost = hostDialog.getHost();
-        //Integer iqueryPort = hostDialog.getPort();
-        //String iqueryHost = "localhost";
-        //String iqueryHost = "scidb-vm";
-        //Integer iqueryPort = 1239;
-        //Connection conn = new Connection(iqueryHost, iqueryPort);
-        //conn.getSciDBConnection().startNewClient("slottad", "bigsecret");
-
-        _arrayTreeModel = SciDBArrayTreeCreator.create();
-//        
-//        Statement st = conn.createStatement();
-//        IStatementWrapper stWrap = st.unwrap(IStatementWrapper.class);
-//        stWrap.setAfl(true);
-//        //create array A<a:string>[x=0:2,3,0, y=0:2,3,0];
-//        //select * into A from array(A, '[["a","b","c"]["d","e","f"]["123","456","789"]]');
-////        ResultSet res = st.executeQuery("select * from array(<a:string>[x=0:2,3,0, y=0:2,3,0], '[[\"a\",\"b\",\"c\"][\"d\",\"e\",\"f\"][\"123\",\"456\",\"789\"]]')");
-//        ResultSet res = st.executeQuery("list('arrays')");
+        _arrayTreeModel = SciDBArrayTreeCreator.create();       
 
         QueryManager qm = QueryManager.getInstance();
         _arrayResults = qm.run_afl_query("list('arrays')");
-        //_arrayResults = new ResultTableModel(res);
         
         initComponents();
     }

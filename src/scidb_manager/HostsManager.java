@@ -25,10 +25,16 @@
  */
 package scidb_manager;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -43,76 +49,57 @@ import javax.swing.DefaultListModel;
  * @author slottad
  */
 public class HostsManager {
+    static Path user = Paths.get(System.getProperty("user.home"),".scidb_hosts");
     
-    public HostsManager(Properties props) {
-        _properties = props;
-        fill_hosts();
-    }
-    
-    private void fill_hosts() {
-        _hosts = new ArrayList<>();
-        Enumeration e = _properties.keys();
-        while (e.hasMoreElements()) {
-            String key = e.nextElement().toString();
-            if (key.startsWith("uri")) {
-                try {
-                    _hosts.add(new URI(_properties.getProperty(key)));
-                } catch (URISyntaxException ex) {
-                    Logger.getLogger(HostsManager.class.getName()).log(Level.SEVERE, null, ex);
+    static public DefaultListModel load() {
+        DefaultListModel lm = new DefaultListModel();
+        //Path user = Paths.get(System.getProperty("user.home"),".scidb_hosts");
+        if (Files.isRegularFile(user) & Files.isReadable(user)) {
+            FileReader fileReader;
+            try {
+                fileReader = new FileReader(user.toFile());
+                BufferedReader bufferedReader = new BufferedReader(fileReader);String line;
+		while ((line = bufferedReader.readLine()) != null) {
+                    lm.addElement(new URI(line));
                 }
-            }
+            } catch (IOException | URISyntaxException ex) {
+                Logger.getLogger(HostsManager.class.getName()).log(Level.SEVERE, null, ex);
+            }            
         }
-        
+        return lm;
     }
     
-    public void reset_and_save_hosts(DefaultListModel newHosts) {
-        // Clear old values
-        Enumeration e = _properties.keys();
-        while (e.hasMoreElements()) {
-            String key = e.nextElement().toString();
-            if (key.startsWith("uri")) {
-                _properties.remove(key);
+    static public void save(DefaultListModel newHosts) {
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(user.toFile());
+            Enumeration e = newHosts.elements();
+            while (e.hasMoreElements()) {
+                String uri = e.nextElement().toString() + "\n";
+                fileWriter.write(uri);
             }
-        }
-        e = newHosts.elements();
-        Integer x = 1;
-        while (e.hasMoreElements()) {
-            String uri = e.nextElement().toString();
-            String key = "uri" + x.toString();
-            _properties.setProperty(key,uri);
-            x++;
-        }
-        Path user = Paths.get(System.getProperty("user.home"),".scidb_manager");
-        try (FileOutputStream out = new FileOutputStream(user.toFile())) {
-            _properties.store(out, "---No Comment---");
         } catch (IOException ex) {
             Logger.getLogger(HostsManager.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                fileWriter.close();
+            } catch (IOException ex) {
+                Logger.getLogger(HostsManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     
-    public URI add_host(String host, Integer port, String user, String pass) {
+    static public URI create_uri(String host, Integer port, String user, String pass) {
         String userinfo = null;
         if (user != null) {
             userinfo = user + ":" + pass;
         }
         try {
             URI uri = new URI("scidb", userinfo, host, port, null, null, null);
-            _hosts.add(uri);
             return uri;
         } catch (URISyntaxException ex) {
             Logger.getLogger(HostsManager.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
-
-    public DefaultListModel getListModel() {
-        DefaultListModel lm = new DefaultListModel();
-        _hosts.stream().forEach((uri) -> {
-            lm.addElement(uri);
-        });
-        return lm;
-    }
-    
-    private final Properties _properties;
-    private ArrayList<URI> _hosts;
 }

@@ -28,6 +28,7 @@ package scidb_manager.gui;
 import java.awt.event.ItemEvent;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -45,7 +46,6 @@ import scidb_manager.QueryManager;
  */
 public class ChooseHostDialog extends javax.swing.JDialog {
     private DefaultListModel _clusters;
-    private HostsManager _hostManager;
     
     /**
      * Creates new form ChooseHostDialog
@@ -55,10 +55,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
      */
     public ChooseHostDialog(java.awt.Frame parent, boolean modal, Properties props) {
         super(parent, modal);
-
-        _hostManager = new HostsManager(props);
-        _clusters = _hostManager.getListModel();
-
+        _clusters = HostsManager.load();
         initComponents();
     }
     
@@ -116,6 +113,12 @@ public class ChooseHostDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         clusterJList.setModel(_clusters);
+        clusterJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        clusterJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                clusterJListValueChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(clusterJList);
 
         hostField.setText("localhost");
@@ -239,11 +242,26 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_showPassCheckBoxItemStateChanged
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-        URI uri = _hostManager.add_host(getHost(), getPort(), getUser(), getPass());
-        //_clusters = _hostManager.getListModel();
-        if (uri != null) _clusters.addElement(uri);
-        _hostManager.reset_and_save_hosts(_clusters);
+        URI uri = HostsManager.create_uri(getHost(), getPort(), getUser(), getPass());
+        if (uri != null) {
+            _clusters.addElement(uri);
+            HostsManager.save(_clusters);
+        }
     }//GEN-LAST:event_saveButtonActionPerformed
+
+    private void clusterJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_clusterJListValueChanged
+        if (evt.getValueIsAdjusting() == false) {
+            try {
+                URI uri = new URI(clusterJList.getSelectedValue());
+                hostField.setText(uri.getHost());
+                portField.setText(Integer.toString(uri.getPort()));
+                //String ui = uri.getUserInfo();
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(ChooseHostDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        }
+    }//GEN-LAST:event_clusterJListValueChanged
 
     /**
      * @param args the command line arguments
