@@ -61,16 +61,19 @@ public class HostsManager {
         
     }
     
-    public void add_host(String host, String port, String user, String pass) {
+    public URI add_host(String host, Integer port, String user, String pass) {
         String userinfo = null;
         if (user != null) {
             userinfo = user + ":" + pass;
         }
         try {
-            _hosts.add(new URI(userinfo, host, port));
+            URI uri = new URI("scidb", userinfo, host, port, null, null, null);
+            _hosts.add(uri);
+            return uri;
         } catch (URISyntaxException ex) {
             Logger.getLogger(HostsManager.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return null;
     }
 
     public DefaultListModel getListModel() {
