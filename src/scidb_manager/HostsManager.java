@@ -25,8 +25,12 @@
  */
 package scidb_manager;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -59,6 +63,31 @@ public class HostsManager {
             }
         }
         
+    }
+    
+    public void reset_and_save_hosts(DefaultListModel newHosts) {
+        // Clear old values
+        Enumeration e = _properties.keys();
+        while (e.hasMoreElements()) {
+            String key = e.nextElement().toString();
+            if (key.startsWith("uri")) {
+                _properties.remove(key);
+            }
+        }
+        e = newHosts.elements();
+        Integer x = 1;
+        while (e.hasMoreElements()) {
+            String uri = e.nextElement().toString();
+            String key = "uri" + x.toString();
+            _properties.setProperty(key,uri);
+            x++;
+        }
+        Path user = Paths.get(System.getProperty("user.home"),".scidb_manager");
+        try (FileOutputStream out = new FileOutputStream(user.toFile())) {
+            _properties.store(out, "---No Comment---");
+        } catch (IOException ex) {
+            Logger.getLogger(HostsManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public URI add_host(String host, Integer port, String user, String pass) {

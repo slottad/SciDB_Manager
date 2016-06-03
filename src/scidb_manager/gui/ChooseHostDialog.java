@@ -241,7 +241,8 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         URI uri = _hostManager.add_host(getHost(), getPort(), getUser(), getPass());
         //_clusters = _hostManager.getListModel();
-        if (uri != null) _clusters.addElement(uri); 
+        if (uri != null) _clusters.addElement(uri);
+        _hostManager.reset_and_save_hosts(_clusters);
     }//GEN-LAST:event_saveButtonActionPerformed
 
     /**
