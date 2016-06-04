@@ -67,10 +67,9 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         ChooseHostDialog hostDialog = new ChooseHostDialog(this, true, _properties);
         hostDialog.setVisible(true);
         hostDialog.dispose();
-
-        _arrayTreeModel = SciDBArrayTreeCreator.create();       
-
         QueryManager qm = QueryManager.getInstance();
+        if (qm == null) System.exit(0);
+        _arrayTreeModel = SciDBArrayTreeCreator.create();       
         _arrayResults = qm.run_afl_query("list('arrays')");
         
         initComponents();

@@ -26,17 +26,13 @@
 package scidb_manager.gui;
 
 import java.awt.event.ItemEvent;
-import java.io.IOException;
+import java.awt.event.MouseEvent;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
-import org.scidb.client.SciDBException;
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputAdapter;
 import scidb_manager.HostsManager;
 import scidb_manager.QueryManager;
 
@@ -57,6 +53,9 @@ public class ChooseHostDialog extends javax.swing.JDialog {
         super(parent, modal);
         _clusters = HostsManager.load();
         initComponents();
+//        JListDragMouseAdaptor myMouseAdaptor = new JListDragMouseAdaptor();
+//        clusterJList.addMouseListener(myMouseAdaptor);
+//        clusterJList.addMouseMotionListener(myMouseAdaptor);
     }
     
     public String getHost() {
@@ -86,6 +85,37 @@ public class ChooseHostDialog extends javax.swing.JDialog {
         return t;
     }
 
+    private class JListDragMouseAdaptor extends MouseInputAdapter {
+        private boolean mouseDragging = false;
+        private int dragSourceIndex;
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                dragSourceIndex = clusterJList.getSelectedIndex();
+                mouseDragging = true;
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            mouseDragging = false;
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            if (mouseDragging) {
+                int currentIndex = clusterJList.locationToIndex(e.getPoint());
+                if (currentIndex != dragSourceIndex) {
+                    int dragTargetIndex = clusterJList.getSelectedIndex();
+                    Object dragElement = _clusters.get(dragSourceIndex);
+                    _clusters.remove(dragSourceIndex);
+                    _clusters.add(dragTargetIndex, dragElement);
+                    dragSourceIndex = currentIndex;
+                }
+            }
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -156,6 +186,11 @@ public class ChooseHostDialog extends javax.swing.JDialog {
         });
 
         deleteButton.setText("Delete");
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -251,13 +286,21 @@ public class ChooseHostDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_saveButtonActionPerformed
 
     private void clusterJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_clusterJListValueChanged
-        if (evt.getValueIsAdjusting() == false) {
+        if ((evt.getValueIsAdjusting() == false) && (clusterJList.getSelectedIndex() >= 0)) {
             URI uri = clusterJList.getSelectedValue();
             hostField.setText(uri.getHost());
             portField.setText(Integer.toString(uri.getPort()));
             //String ui = uri.getUserInfo();            
         }
     }//GEN-LAST:event_clusterJListValueChanged
+
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        if (clusterJList.getSelectedIndex() >=0 ) {
+            int i = clusterJList.getSelectedIndex();
+            clusterJList.clearSelection();
+            _clusters.remove(i);
+        }
+    }//GEN-LAST:event_deleteButtonActionPerformed
 
     /**
      * @param args the command line arguments
