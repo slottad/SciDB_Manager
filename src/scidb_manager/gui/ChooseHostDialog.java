@@ -45,7 +45,7 @@ import scidb_manager.QueryManager;
  * @author slottad
  */
 public class ChooseHostDialog extends javax.swing.JDialog {
-    private DefaultListModel _clusters;
+    private final DefaultListModel _clusters;
     
     /**
      * Creates new form ChooseHostDialog
@@ -114,6 +114,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
 
         clusterJList.setModel(_clusters);
         clusterJList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        clusterJList.setDragEnabled(true);
         clusterJList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 clusterJListValueChanged(evt);
@@ -251,15 +252,10 @@ public class ChooseHostDialog extends javax.swing.JDialog {
 
     private void clusterJListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_clusterJListValueChanged
         if (evt.getValueIsAdjusting() == false) {
-            try {
-                URI uri = new URI(clusterJList.getSelectedValue());
-                hostField.setText(uri.getHost());
-                portField.setText(Integer.toString(uri.getPort()));
-                //String ui = uri.getUserInfo();
-            } catch (URISyntaxException ex) {
-                Logger.getLogger(ChooseHostDialog.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
+            URI uri = clusterJList.getSelectedValue();
+            hostField.setText(uri.getHost());
+            portField.setText(Integer.toString(uri.getPort()));
+            //String ui = uri.getUserInfo();            
         }
     }//GEN-LAST:event_clusterJListValueChanged
 
@@ -308,7 +304,7 @@ public class ChooseHostDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel HostLabel;
-    private javax.swing.JList<String> clusterJList;
+    private javax.swing.JList<URI> clusterJList;
     private javax.swing.JButton deleteButton;
     private javax.swing.JTextField hostField;
     private javax.swing.JScrollPane jScrollPane1;
