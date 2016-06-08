@@ -31,19 +31,18 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.scidb.client.SciDBException;
-import org.scidb.jdbc.Connection;
-import org.scidb.jdbc.IStatementWrapper;
 import scidb_manager.QueryManager;
 import scidb_manager.ResultTableModel;
-import scidb_manager.SciDBArrayTreeCreator;
+import scidb_manager.SciDBArray;
+
 
 /**
  *
@@ -53,6 +52,7 @@ import scidb_manager.SciDBArrayTreeCreator;
 public class SciDBManagerFrame extends javax.swing.JFrame {
 
     private DefaultTreeModel _arrayTreeModel;
+    private DefaultTreeModel _detailsTreeModel;
     private final ResultTableModel _arrayResults;
     private Properties _properties;
     
@@ -69,10 +69,16 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         hostDialog.dispose();
         QueryManager qm = QueryManager.getInstance();
         if (qm == null) System.exit(0);
-        _arrayTreeModel = SciDBArrayTreeCreator.create();       
+        _arrayTreeModel = createArrayTree();
+        _detailsTreeModel = new DefaultTreeModel(null);
         _arrayResults = qm.run_afl_query("list('arrays')");
         
         initComponents();
+
+        for (int i=0; i<ArrayTree.getRowCount(); i++) {
+            ArrayTree.expandRow(i);
+        } 
+
     }
 
     private void load_properties() throws IOException {
@@ -85,6 +91,24 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
             InputStream in = this.getClass().getResourceAsStream("/settings/defaults.properties");
             _properties.load(in);
         }
+    }
+    
+    private DefaultTreeModel createArrayTree() throws SQLException, SciDBException, IOException
+    {
+        QueryManager qm = QueryManager.getInstance();
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode(qm.getHost());
+        List<String> namespaces = qm.namespaces();
+        
+        for (String ns : namespaces) {
+            DefaultMutableTreeNode nsNode = new DefaultMutableTreeNode(ns);
+            top.add(nsNode);
+            List<SciDBArray> arrays = qm.arrays(ns);
+            for (SciDBArray arr : arrays) {
+                DefaultMutableTreeNode arrNode = new DefaultMutableTreeNode(arr);
+                nsNode.add(arrNode);
+            }
+        }
+        return new DefaultTreeModel(top);
     }
     
     /**
@@ -105,13 +129,15 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         jSplitPane3 = new javax.swing.JSplitPane();
         ArrayTreeScrollPane = new javax.swing.JScrollPane();
         ArrayTree = new javax.swing.JTree();
-        ArrayPropertiesScrollPane = new javax.swing.JScrollPane();
-        ArrayProperties = new javax.swing.JList<>();
+        DetailsScrollPane = new javax.swing.JScrollPane();
+        DetailsTree = new javax.swing.JTree();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jSplitPane1.setDividerLocation(150);
+        jSplitPane1.setDividerLocation(300);
+        jSplitPane1.setDividerSize(2);
 
+        jSplitPane2.setDividerSize(2);
         jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         QueryTextEditor.setColumns(20);
@@ -127,21 +153,24 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
 
         jSplitPane1.setRightComponent(jSplitPane2);
 
+        jSplitPane3.setDividerLocation(400);
+        jSplitPane3.setDividerSize(2);
         jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         ArrayTree.setModel(_arrayTreeModel);
+        ArrayTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                ArrayTreeValueChanged(evt);
+            }
+        });
         ArrayTreeScrollPane.setViewportView(ArrayTree);
 
         jSplitPane3.setTopComponent(ArrayTreeScrollPane);
 
-        ArrayProperties.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
-        ArrayPropertiesScrollPane.setViewportView(ArrayProperties);
+        DetailsTree.setModel(_detailsTreeModel);
+        DetailsScrollPane.setViewportView(DetailsTree);
 
-        jSplitPane3.setRightComponent(ArrayPropertiesScrollPane);
+        jSplitPane3.setRightComponent(DetailsScrollPane);
 
         jSplitPane1.setLeftComponent(jSplitPane3);
 
@@ -149,15 +178,29 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 730, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1118, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 618, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 891, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void ArrayTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_ArrayTreeValueChanged
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode) ArrayTree.getLastSelectedPathComponent();
+        if (node == null) return;
+        
+        Object nodeInfo =  node.getUserObject();
+        if (node.isLeaf()) {
+            SciDBArray sa = (SciDBArray)nodeInfo;
+            _detailsTreeModel.setRoot(sa.getSchemaTree());
+        }
+        for (int i=0; i<DetailsTree.getRowCount(); i++) {
+            DetailsTree.expandRow(i);
+        } 
+    }//GEN-LAST:event_ArrayTreeValueChanged
 
     /**
      * @param args the command line arguments
@@ -205,14 +248,15 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JList<String> ArrayProperties;
-    private javax.swing.JScrollPane ArrayPropertiesScrollPane;
     private javax.swing.JTree ArrayTree;
     private javax.swing.JScrollPane ArrayTreeScrollPane;
+    private javax.swing.JScrollPane DetailsScrollPane;
+    private javax.swing.JTree DetailsTree;
     private javax.swing.JScrollPane QueryEditorScrollPane;
     private javax.swing.JTextArea QueryTextEditor;
     private javax.swing.JTable ResultsTable;
     private javax.swing.JScrollPane ResultsTableScrollPane;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JSplitPane jSplitPane3;

@@ -25,67 +25,50 @@
  */
 package scidb_manager;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.SQLException;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.scidb.client.SciDBException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author slottad
  */
 public class SciDB_Manager {
+    static Pattern brackets = Pattern.compile("[<\\[\\]>]+\\s*[<\\[\\]>]*");
+    static Pattern dimsep = Pattern.compile("[^,]+,[^,]+,[^,]+,{0,1}");
+    
+    public static void schema_parse(String inSchema) {
+        String[] schema = brackets.split(inSchema);
+        //String name = schema[0];
+        String attributes = schema[1];
+        String dimensions = schema[2];
 
+        System.out.println("Attributes: " + attributes);
+        String[] items = attributes.split(",");                
+        for (String i: items) {
+            System.out.println(i);
+        }
+
+        System.out.println("Dimensions: " + dimensions);
+        Matcher m = dimsep.matcher(dimensions);
+        while (m.find()) {
+            int s = m.start();
+            int e = m.end();
+            if (dimensions.charAt(e-1) == ',') e = e-1;
+            System.out.println(dimensions.substring(s, e));
+        }
+        
+    }
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         
-        try
-        {
-            String homeDir = System.getProperty("user.home");
-            homeDir += "/.scidb_manager";
-            Path fname = Paths.get(System.getProperty("user.home"),".scidb_manager");
-            System.out.println(homeDir);
-            System.out.println(fname.toString());
-            URI uri = new URI("scidb","slottad:password","gtdev13", 1239,null,null,null);
-            System.out.println(uri);
-            URI uri2 = new URI("scidb",null,"gtdev13", 1239,null,null,null);
-            System.out.println(uri2);
-            
-            Properties defaultProps = new Properties();
-            defaultProps.setProperty("uri1",uri.toString());
-            defaultProps.setProperty("uri2",uri2.toString());
-            
-//            try (FileOutputStream out = new FileOutputStream("default.properties")) {
-//                defaultProps.store(out, "---No Comment---");
-//            }
-            System.exit(0);
-            
-            try
-            {
-                Class.forName("org.scidb.jdbc.Driver");
-            }
-            catch (ClassNotFoundException e)
-            {
-                System.out.println("Driver is not in the CLASSPATH -> " + e);
-            }
-            
-            QueryManager qm = QueryManager.getInstance();
-            qm.test();
-            qm.namespaces();
-        }
-        catch (SQLException | SciDBException | IOException | URISyntaxException ex)
-        {
-            Logger.getLogger(SciDB_Manager.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        String schema1 = "KG_VAR_SVD<u:double NOT NULL> [sample_id=0:2503,512,0,i=0:2503,512,0]";
+        String schema2 = "MODIS_DATA<altitude:double> [latitude_e4=-900000:900000,20000,0,longitude_e4=-1800000:1800000,20000,0]";
+        String schema3 = "MODIS_PLACES<FEATURE_ID:string,FEATURE_NAME:string,FEATURE_CLASS:string,STATE_ALPHA:string,STATE_NUMERIC:string,COUNTY_NAME:string,COUNTY_NUMERIC:string,PRIMARY_LAT_DMS:string,PRIM_LONG_DMS:string,PRIM_LAT_DEC:string,PRIM_LONG_DEC:string,SOURCE_LAT_DMS:string,SOURCE_LONG_DMS:string,SOURCE_LAT_DEC:string,SOURCE_LONG_DEC:string,ELEV_IN_M:string,ELEV_IN_FT:string,MAP_NAME:string,DATE_CREATED:string,DATE_EDITED:string> [i=0:*,10000,0]";
+        
+        schema_parse(schema1);
 
         System.exit(0);
     }
