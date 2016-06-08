@@ -41,6 +41,11 @@ public class ResultTableModel extends AbstractTableModel {
     private final ArrayList<String> columnNames;
     private final ArrayList<Object[]> data;
     
+    public ResultTableModel() {
+        columnNames = new ArrayList<>();
+        data = new ArrayList<>();
+    }
+    
     public ResultTableModel(ResultSet results) {
         columnNames = new ArrayList<>();
         data = new ArrayList<>();

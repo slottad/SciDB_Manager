@@ -53,7 +53,7 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
 
     private DefaultTreeModel _arrayTreeModel;
     private DefaultTreeModel _detailsTreeModel;
-    private final ResultTableModel _arrayResults;
+    private ResultTableModel _arrayResults;
     private Properties _properties;
     
     /**
@@ -71,7 +71,7 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         if (qm == null) System.exit(0);
         _arrayTreeModel = createArrayTree();
         _detailsTreeModel = new DefaultTreeModel(null);
-        _arrayResults = qm.run_afl_query("list('arrays')");
+        _arrayResults = new ResultTableModel();
         
         initComponents();
 
@@ -120,42 +120,57 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jSplitPane1 = new javax.swing.JSplitPane();
-        jSplitPane2 = new javax.swing.JSplitPane();
+        mainSplitPane = new javax.swing.JSplitPane();
+        rightSplitPane = new javax.swing.JSplitPane();
         QueryEditorScrollPane = new javax.swing.JScrollPane();
         QueryTextEditor = new javax.swing.JTextArea();
         ResultsTableScrollPane = new javax.swing.JScrollPane();
         ResultsTable = new javax.swing.JTable();
-        jSplitPane3 = new javax.swing.JSplitPane();
+        leftSplitPane = new javax.swing.JSplitPane();
         ArrayTreeScrollPane = new javax.swing.JScrollPane();
         ArrayTree = new javax.swing.JTree();
         DetailsScrollPane = new javax.swing.JScrollPane();
         DetailsTree = new javax.swing.JTree();
+        mainToolBar = new javax.swing.JToolBar();
+        queryButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("SciDB Manager");
+        setPreferredSize(new java.awt.Dimension(1024, 768));
 
-        jSplitPane1.setDividerLocation(300);
-        jSplitPane1.setDividerSize(2);
+        mainSplitPane.setDividerLocation(300);
+        mainSplitPane.setDividerSize(5);
 
-        jSplitPane2.setDividerSize(2);
-        jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        rightSplitPane.setBorder(null);
+        rightSplitPane.setDividerSize(5);
+        rightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        rightSplitPane.setResizeWeight(0.5);
+
+        QueryEditorScrollPane.setBorder(null);
 
         QueryTextEditor.setColumns(20);
-        QueryTextEditor.setRows(5);
+        QueryTextEditor.setRows(10);
+        QueryTextEditor.setMinimumSize(new java.awt.Dimension(0, 50));
         QueryEditorScrollPane.setViewportView(QueryTextEditor);
 
-        jSplitPane2.setTopComponent(QueryEditorScrollPane);
+        rightSplitPane.setTopComponent(QueryEditorScrollPane);
+
+        ResultsTableScrollPane.setBorder(null);
 
         ResultsTable.setModel(_arrayResults);
         ResultsTableScrollPane.setViewportView(ResultsTable);
 
-        jSplitPane2.setRightComponent(ResultsTableScrollPane);
+        rightSplitPane.setRightComponent(ResultsTableScrollPane);
 
-        jSplitPane1.setRightComponent(jSplitPane2);
+        mainSplitPane.setRightComponent(rightSplitPane);
 
-        jSplitPane3.setDividerLocation(400);
-        jSplitPane3.setDividerSize(2);
-        jSplitPane3.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        leftSplitPane.setBorder(null);
+        leftSplitPane.setDividerLocation(400);
+        leftSplitPane.setDividerSize(5);
+        leftSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        leftSplitPane.setResizeWeight(0.5);
+
+        ArrayTreeScrollPane.setBorder(null);
 
         ArrayTree.setModel(_arrayTreeModel);
         ArrayTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
@@ -165,24 +180,43 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
         });
         ArrayTreeScrollPane.setViewportView(ArrayTree);
 
-        jSplitPane3.setTopComponent(ArrayTreeScrollPane);
+        leftSplitPane.setTopComponent(ArrayTreeScrollPane);
+
+        DetailsScrollPane.setBorder(null);
 
         DetailsTree.setModel(_detailsTreeModel);
         DetailsScrollPane.setViewportView(DetailsTree);
 
-        jSplitPane3.setRightComponent(DetailsScrollPane);
+        leftSplitPane.setRightComponent(DetailsScrollPane);
 
-        jSplitPane1.setLeftComponent(jSplitPane3);
+        mainSplitPane.setLeftComponent(leftSplitPane);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        mainToolBar.setRollover(true);
+
+        queryButton.setText("Run Query");
+        queryButton.setFocusable(false);
+        queryButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        queryButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        queryButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                queryButtonActionPerformed(evt);
+            }
+        });
+        mainToolBar.add(queryButton);
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1118, Short.MAX_VALUE)
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(mainToolBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(mainSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 1024, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 891, Short.MAX_VALUE)
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(mainToolBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(mainSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 732, Short.MAX_VALUE))
         );
 
         pack();
@@ -201,6 +235,17 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
             DetailsTree.expandRow(i);
         } 
     }//GEN-LAST:event_ArrayTreeValueChanged
+
+    private void queryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryButtonActionPerformed
+        try {
+            QueryManager qm = QueryManager.getInstance();
+            _arrayResults = qm.run_afl_query("list('arrays')");
+            ResultsTable.setModel(_arrayResults);
+            ResultsTable.doLayout();
+        } catch (SQLException | SciDBException | IOException ex) {
+            Logger.getLogger(SciDBManagerFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_queryButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -256,9 +301,10 @@ public class SciDBManagerFrame extends javax.swing.JFrame {
     private javax.swing.JTextArea QueryTextEditor;
     private javax.swing.JTable ResultsTable;
     private javax.swing.JScrollPane ResultsTableScrollPane;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JSplitPane jSplitPane2;
-    private javax.swing.JSplitPane jSplitPane3;
+    private javax.swing.JSplitPane leftSplitPane;
+    private javax.swing.JSplitPane mainSplitPane;
+    private javax.swing.JToolBar mainToolBar;
+    private javax.swing.JButton queryButton;
+    private javax.swing.JSplitPane rightSplitPane;
     // End of variables declaration//GEN-END:variables
 }
